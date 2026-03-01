@@ -1,7 +1,7 @@
 import type { Node as XYNode, Edge as XYEdge } from '@xyflow/react';
 
 export interface NodeData extends Record<string, unknown> {
-    label: string;
+    label?: string;
 }
 
 export type Node = XYNode<NodeData>;
