@@ -39,9 +39,8 @@ export function ButtonEdge({
         markerEnd={markerEnd} 
         style={{
           ...style,
-          stroke: selected ? '#8B5CF6' : '#06B6D4',
+          stroke: selected ? '#3b82f6' : '#52525b',
           strokeWidth: 2,
-          filter: selected ? 'drop-shadow(0 0 5px #8B5CF6)' : 'drop-shadow(0 0 3px #06B6D4)'
         }} 
       />
       <EdgeLabelRenderer>
@@ -49,15 +48,13 @@ export function ButtonEdge({
           style={{
             position: 'absolute',
             transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-            fontSize: 12,
-            // pointerEvents is needed because otherwise EdgeLabelRenderer disables click events
             pointerEvents: 'all',
             zIndex: 1000,
           }}
           className="nodrag nopan"
         >
           <button
-            className="w-5 h-5 bg-red-500 hover:bg-red-600 text-black rounded-full flex items-center justify-center font-bold shadow-[0_0_8px_rgba(239,68,68,0.8)] transition-all"
+            className="w-5 h-5 bg-zinc-800 hover:bg-red-500 text-zinc-400 hover:text-white border border-zinc-700 rounded-full flex items-center justify-center text-xs transition-colors shadow-sm"
             onClick={onEdgeClick}
             title="Bağlantıyı Sil"
           >
