@@ -1,9 +1,10 @@
 "use client";
 import { useState, useCallback } from 'react';
-import { Position, Handle, type NodeProps, useReactFlow } from '@xyflow/react';
+import { type NodeProps, useReactFlow } from '@xyflow/react';
+import { BaseNode } from './BaseNode';
 
 export function AITextGenerate({ id, data, selected }: NodeProps) {
-  const { updateNodeData, deleteElements } = useReactFlow();
+  const { updateNodeData } = useReactFlow();
   const [prompt, setPrompt] = useState((data?.prompt as string) || '');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -26,27 +27,17 @@ export function AITextGenerate({ id, data, selected }: NodeProps) {
     updateNodeData(id, { prompt: newVal });
   };
 
-  const onDelete = useCallback(() => {
-    deleteElements({ nodes: [{ id }] });
-  }, [id, deleteElements]);
-
   return (
-    <div className={`rounded-xl border ${selected ? 'border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]' : 'border-zinc-800'} bg-zinc-900/60 backdrop-blur-md min-w-[280px] overflow-hidden transition-all duration-300`}>
-      <div className="bg-zinc-950/50 px-4 py-2 flex justify-between items-center group border-b border-zinc-800/80">
-        <div className="text-sm font-semibold text-emerald-400 flex items-center gap-2 drop-shadow-[0_0_5px_rgba(16,185,129,0.4)]">
-          <span>✨ AI Text Generate</span>
-        </div>
-        <button
-          onClick={onDelete}
-          className="text-zinc-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all focus:opacity-100 drop-shadow-[0_0_5px_rgba(239,68,68,0)] hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"
-          title="Node'u Sil"
-        >
-          🗑️
-        </button>
-      </div>
-      
-      <div className="p-4 flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
+    <BaseNode
+      id={id}
+      selected={selected || false}
+      title="AI Text Generate"
+      icon="✨"
+      themeColor="emerald"
+      minWidth={280}
+      hasReviewHandle={true}
+    >
+      <div className="flex flex-col gap-1.5">
           <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Prompt</label>
           <textarea
             className="nodrag text-sm w-full p-2.5 border border-zinc-800/80 rounded bg-black/50 text-zinc-200 focus:outline-none focus:border-emerald-500/80 focus:ring-1 focus:ring-emerald-500/50 transition-colors resize-none font-mono placeholder:text-zinc-600"
@@ -80,10 +71,6 @@ export function AITextGenerate({ id, data, selected }: NodeProps) {
             </div>
           </div>
         )}
-      </div>
-
-      <Handle type="target" position={Position.Left} className="w-2.5 h-2.5 bg-zinc-900 border border-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.8)]" />
-      <Handle type="source" position={Position.Right} className="w-2.5 h-2.5 bg-emerald-500 border border-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-    </div>
+    </BaseNode>
   );
 }
