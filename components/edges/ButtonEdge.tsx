@@ -1,10 +1,11 @@
 import {
   BaseEdge,
   EdgeLabelRenderer,
-  getBezierPath,
+  getSmoothStepPath,
   useReactFlow,
   type EdgeProps,
 } from '@xyflow/react';
+import { useFlowStore } from '../../src/store/useFlowStore';
 
 export function ButtonEdge({
   id,
@@ -14,23 +15,37 @@ export function ButtonEdge({
   targetY,
   sourcePosition,
   targetPosition,
+  sourceHandleId,
+  targetHandleId,
   style = {},
   markerEnd,
   selected,
 }: EdgeProps) {
   const { setEdges } = useReactFlow();
-  const [edgePath, labelX, labelY] = getBezierPath({
+  const activeEdges = useFlowStore((state) => state.activeEdges);
+  const isRunning = useFlowStore((state) => state.isRunning);
+
+  const [edgePath, labelX, labelY] = getSmoothStepPath({
     sourceX,
     sourceY,
     sourcePosition,
     targetX,
     targetY,
     targetPosition,
+    borderRadius: 12,
   });
 
   const onEdgeClick = () => {
     setEdges((edges) => edges.filter((edge) => edge.id !== id));
   };
+
+  const isExec = sourceHandleId === 'exec-out' || targetHandleId === 'exec-in';
+  const isActive = activeEdges.includes(id);
+
+  let strokeColor = selected ? '#3b82f6' : '#52525b';
+  if (isRunning && isActive) {
+      strokeColor = '#22c55e'; // Çalışırken ulaşılan node'a giden execution yolu yeşil
+  }
 
   return (
     <>
@@ -39,8 +54,10 @@ export function ButtonEdge({
         markerEnd={markerEnd} 
         style={{
           ...style,
-          stroke: selected ? '#3b82f6' : '#52525b',
-          strokeWidth: 2,
+          stroke: strokeColor,
+          strokeWidth: isExec ? 2 : 3,
+          strokeDasharray: isExec ? '5,5' : 'none',
+          animation: isExec ? 'dashdraw 0.5s linear infinite' : 'none',
         }} 
       />
       <EdgeLabelRenderer>

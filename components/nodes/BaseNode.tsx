@@ -1,12 +1,42 @@
-import { Handle, Position } from '@xyflow/react';
+import { ReactNode } from 'react';
+import { Handle, HandleProps, Position } from '@xyflow/react';
+
+export interface BaseHandleProps extends Omit<HandleProps, 'type'> {
+  type: 'source' | 'target' | 'input' | 'output';
+}
+
+export function BaseHandle({ type, className, ...props }: BaseHandleProps) {
+  // Map our custom types to React Flow handle types
+  // 'target' and 'input' both act as receivers (React Flow 'target')
+  // 'source' and 'output' both act as emitters (React Flow 'source')
+  const xyflowType = (type === 'target' || type === 'input') ? 'target' : 'source';
+
+  let handleStyle = '';
+
+  // N8n-like visual distinction
+  if (type === 'target' || type === 'source') {
+    // Execution flow handles
+    handleStyle = 'w-3 h-4 !bg-zinc-700 !border-2 !border-zinc-500 !rounded-[2px] z-10';
+  } else {
+    // Data handles
+    handleStyle = 'w-3 h-3 !bg-blue-500/80 !border-2 !border-white/80 !rounded-full z-10 hover:!bg-blue-400 hover:scale-110 transition-all cursor-crosshair';
+  }
+
+  return (
+    <Handle 
+      {...props}
+      type={xyflowType}
+      className={`${handleStyle} ${className || ''}`} 
+    />
+  );
+}
 
 export interface BaseNodeProps {
   id: string;
   selected: boolean;
   icon?: string;
   themeColor?: 'blue' | 'zinc' | 'emerald' | 'amber' | 'purple' | 'cyan' | 'rose';
-  hasTargetHandle?: boolean;
-  hasSourceHandle?: boolean;
+  children?: ReactNode;
 }
 
 const colorMap: Record<string, string> = {
@@ -33,8 +63,7 @@ export function BaseNode({
   selected,
   icon,
   themeColor = 'zinc',
-  hasTargetHandle = true,
-  hasSourceHandle = true,
+  children,
 }: BaseNodeProps) {
   const baseColor = colorMap[themeColor] || colorMap.zinc;
   const activeColor = activeColorMap[themeColor] || activeColorMap.zinc;
@@ -48,21 +77,7 @@ export function BaseNode({
       className={`w-14 h-14 flex items-center justify-center rounded-xl border-2 bg-zinc-900 transition-all ${selectedClass} ${baseColor.split(' ')[0]}`}
     >
       <span className="text-2xl pointer-events-none drop-shadow-md">{icon}</span>
-      
-      {hasTargetHandle && (
-        <Handle 
-          type="target" 
-          position={Position.Left} 
-          className="w-3 h-3 bg-zinc-800 border-2 border-zinc-500 rounded-full" 
-        />
-      )}
-      {hasSourceHandle && (
-        <Handle 
-          type="source" 
-          position={Position.Right} 
-          className="w-3 h-3 bg-zinc-800 border-2 border-zinc-500 rounded-full" 
-        />
-      )}
+      {children}
     </div>
   );
 }

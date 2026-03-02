@@ -13,6 +13,7 @@ export type FlowState = {
   nodes: Node[];
   edges: Edge[];
   isRunning: boolean;
+  activeEdges: string[];
   onNodesChange: (changes: NodeChange<Node>[]) => void;
   onEdgesChange: (changes: EdgeChange<Edge>[]) => void;
   onConnect: (connection: Connection) => void;
@@ -23,17 +24,20 @@ export type FlowState = {
 };
 
 const initialNodes: Node[] = [
-  { id: 'generate-1', type: 'aiTextGenerate', position: { x: 100, y: 100 }, data: { prompt: '' } },
-  { id: 'review-1', type: 'textReview', position: { x: 300, y: 100 }, data: {} },
+  { id: 'start-1', type: 'start', position: { x: 50, y: 100 }, data: {}, deletable: false },
+  { id: 'generate-1', type: 'aiTextGenerate', position: { x: 300, y: 100 }, data: { prompt: '' } },
+  { id: 'review-1', type: 'textReview', position: { x: 600, y: 100 }, data: {} },
 ];
 const initialEdges: Edge[] = [
-  { id: 'e1', source: 'generate-1', target: 'review-1', type: 'buttonedge', animated: true }
+  { id: 'e0', source: 'start-1', target: 'generate-1', sourceHandle: 'exec-out', targetHandle: 'exec-in', type: 'buttonedge' },
+  { id: 'e1', source: 'generate-1', target: 'review-1', sourceHandle: 'exec-out', targetHandle: 'exec-in', type: 'buttonedge' }
 ];
 
 export const useFlowStore = create<FlowState>((set, get) => ({
   nodes: initialNodes,
   edges: initialEdges,
   isRunning: false,
+  activeEdges: [],
 
   onNodesChange: (changes: NodeChange<Node>[]) => {
     set({
@@ -80,12 +84,13 @@ export const useFlowStore = create<FlowState>((set, get) => ({
 
   runFlow: async () => {
     if (get().isRunning) return;
-    set({ isRunning: true });
+    set({ isRunning: true, activeEdges: [] });
 
     const nodes = get().nodes;
     const edges = get().edges;
 
     // Build Execution Graph Data Structures (Topological Sort)
+    // Sadece exec-out ve exec-in olanları dahil et:
     const inDegree = new Map<string, number>();
     const adjList = new Map<string, string[]>();
 
@@ -95,7 +100,10 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     });
 
     edges.forEach((e) => {
-      if (inDegree.has(e.target) && adjList.has(e.source)) {
+      // Data edges should theoretically NOT restrict execution in topological sort strictly,
+      // but for simplicity in this flow, they might unless we check `targetHandle === 'exec-in'`
+      const isExec = e.sourceHandle === 'exec-out' || e.targetHandle === 'exec-in';
+      if (isExec && inDegree.has(e.target) && adjList.has(e.source)) {
         inDegree.set(e.target, (inDegree.get(e.target) || 0) + 1);
         adjList.get(e.source)!.push(e.target);
       }
@@ -109,15 +117,21 @@ export const useFlowStore = create<FlowState>((set, get) => ({
     // Execute nodes in topological order
     while (queue.length > 0) {
       const currId = queue.shift()!;
+      
+      // Node çalışmadan hemen önce, bu node'a gelen execution edge'leri yeşil yapalım
+      set((state) => {
+        const incomingEdges = state.edges.filter(e => e.target === currId && (e.targetHandle === 'exec-in' || e.sourceHandle === 'exec-out')).map(e => e.id);
+        return { activeEdges: [...state.activeEdges, ...incomingEdges] };
+      });
+
       const currNode = get().nodes.find((n) => n.id === currId);
       
       if (currNode) {
-         // Yüklenme efekti için küçük bir gecikme
          await new Promise((resolve) => setTimeout(resolve, 800));
 
          if (currNode.type === 'aiTextGenerate') {
              if (currNode.data?.prompt) {
-                const output = `[Agent] -> Yapay Zeka Çıktısı:\nSorduğunuz "${currNode.data.prompt}" komutu başarıyla işlendi. (Topological Order via Graph Execution)`;
+                const output = `[Agent] -> Yapay Zeka Çıktısı:\nSorduğunuz "${currNode.data.prompt}" komutu başarıyla işlendi.`;
                 get().updateNodeData(currNode.id, { output });
              }
          }
@@ -133,7 +147,6 @@ export const useFlowStore = create<FlowState>((set, get) => ({
                      textData.push(String(prevNode.data.output));
                  }
              }
-             // Instead of modifying, we can store it, or TextReview node directly reads connected node's outputs at render time via `useNodesData` as it currently does. We don't necessarily have to inject it into its data, but we can to mark it as executed.
          }
       }
 
@@ -146,6 +159,6 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       });
     }
 
-    set({ isRunning: false });
+    set({ isRunning: false, activeEdges: [] });
   },
 }));

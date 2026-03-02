@@ -5,6 +5,7 @@ import { TextUpdaterNode } from '../../components/nodes/TextUpdaterNode';
 import { TestNode } from '../../components/nodes/TestNode';
 import { AITextGenerate } from '../../components/nodes/AITextGenerate';
 import { TextReview } from '../../components/nodes/TextReview';
+import { StartNode } from '../../components/nodes/StartNode';
 import { ButtonEdge } from '../../components/edges/ButtonEdge';
 import { useFlowStore } from '../store/useFlowStore';
 import { ToolbarPanel } from '../../components/panels/ToolbarPanel';
@@ -15,6 +16,7 @@ const nodeTypes = {
   test: TestNode,
   aiTextGenerate: AITextGenerate,
   textReview: TextReview,
+  start: StartNode,
 };
 
 const edgeTypes = {
