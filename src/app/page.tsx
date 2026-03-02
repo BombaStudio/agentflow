@@ -7,7 +7,6 @@ import { AITextGenerate } from '../../components/nodes/AITextGenerate';
 import { TextReview } from '../../components/nodes/TextReview';
 import { ButtonEdge } from '../../components/edges/ButtonEdge';
 import { useFlowStore } from '../store/useFlowStore';
-import { NodeSettings } from '../../components/nodes/NodeSettings';
 import { ToolbarPanel } from '../../components/panels/ToolbarPanel';
 import { NodeEditorPanel } from '../../components/panels/NodeEditorPanel';
 
