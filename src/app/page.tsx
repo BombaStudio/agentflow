@@ -1,5 +1,5 @@
 "use client";
-import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge, Background, Controls, MiniMap, Panel, useReactFlow } from '@xyflow/react';
+import { ReactFlow, applyNodeChanges, applyEdgeChanges, addEdge, Background, Controls, MiniMap, Panel, useReactFlow, BackgroundVariant } from '@xyflow/react';
 import type { OnNodesChange, OnEdgesChange, OnConnect } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useState, useCallback } from 'react';
@@ -31,24 +31,24 @@ const initialEdges : Edge[] = [
 
 function FlowPanel({ addNode }: { addNode: (type: string) => void }) {
   return (
-    <Panel position="center-left" className="bg-white/90 p-3 rounded-lg shadow-md border border-slate-200 flex flex-col gap-2 backdrop-blur-sm">
-      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 text-center border-b border-slate-100 pb-2">Node Ekle & Sil</span>
+    <Panel position="center-left" className="bg-black/40 p-4 rounded-xl border border-zinc-800/80 flex flex-col gap-3 backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+      <span className="text-[10px] font-mono font-bold text-zinc-500 uppercase tracking-widest mb-1 text-center border-b border-zinc-800/50 pb-2">Toolbox</span>
       
       <button
         onClick={() => addNode('aiTextGenerate')}
-        className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-sm font-medium rounded-md border border-indigo-200 transition-colors flex items-center gap-2"
+        className="px-4 py-2.5 bg-zinc-900/80 hover:bg-emerald-950/40 text-emerald-400 text-sm font-medium rounded border border-zinc-800 hover:border-emerald-500/50 transition-all flex items-center gap-2 shadow-[0_0_5px_rgba(16,185,129,0)] hover:shadow-[0_0_10px_rgba(16,185,129,0.2)]"
       >
         ✨ AI Generate
       </button>
       
       <button
         onClick={() => addNode('textReview')}
-        className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-sm font-medium rounded-md border border-emerald-200 transition-colors flex items-center gap-2"
+        className="px-4 py-2.5 bg-zinc-900/80 hover:bg-cyan-950/40 text-cyan-400 text-sm font-medium rounded border border-zinc-800 hover:border-cyan-500/50 transition-all flex items-center gap-2 shadow-[0_0_5px_rgba(6,182,212,0)] hover:shadow-[0_0_10px_rgba(6,182,212,0.2)]"
       >
         👀 Text Review
       </button>
       
-      <span className="text-[10px] text-slate-400 text-center leading-tight mt-1">
+      <span className="text-[10px] text-zinc-600 font-mono text-center leading-tight mt-1">
         Ayrıca klavyeden "Delete" ile<br/>silebilirsiniz.
       </span>
     </Panel>
@@ -83,12 +83,14 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen w-full flex-col bg-slate-50 font-sans p-6 text-slate-900">
-      <header className="mb-4">
-        <h1 className="text-2xl font-bold text-slate-800">Agent Flow</h1>
-        <p className="text-sm text-slate-500">ReactFlow canvas örneği (Açık Tema)</p>
+    <div className="flex h-screen w-full flex-col bg-[#050505] font-sans p-6 text-zinc-300">
+      <header className="mb-5 flex justify-between items-end">
+        <div>
+          <h1 className="text-3xl font-bold text-emerald-400 tracking-tight drop-shadow-[0_0_8px_rgba(16,185,129,0.3)]">Agent Flow</h1>
+          <p className="text-sm font-mono text-zinc-500 mt-1 uppercase tracking-widest">Neon Obsidian Laboratory</p>
+        </div>
       </header>
-      <main className="flex-1 w-full bg-white rounded-xl shadow-sm border border-slate-300 overflow-hidden relative">
+      <main className="flex-1 w-full bg-[#09090b] rounded-2xl border border-zinc-800/80 shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden relative">
           <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -98,10 +100,10 @@ export default function Home() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             fitView
-          colorMode="light"
+          colorMode="dark"
         >
-          <Background color="#ccc" gap={16} />
-          <Controls />
+          <Background color="#3f3f46" gap={20} variant={BackgroundVariant.Dots} />
+          <Controls className="!bg-[#09090b] !border-zinc-800 !fill-zinc-400" />
           <MiniMap />
           <FlowPanel addNode={addNode} />
         </ReactFlow>
